@@ -144,8 +144,18 @@ import {
 
 // Employee Contracts module routes
 import {
-  getContracts, createContract, updateContract, deleteContract
+  getContracts, createContract, updateContract, deleteContract,
+  getContractById, getContractsAnalytics, renewContract, terminateContract
 } from "./routes/contracts.js";
+
+// Employee Referrals module routes
+import {
+  getReferrals, createReferral, updateReferral, deleteReferral,
+  getReferralBonuses, createReferralBonus, updateReferralBonus,
+  getReferralAnalytics,
+  getContractTemplates, createContractTemplate, updateContractTemplate, deleteContractTemplate,
+  getContractRenewals, createContractRenewal
+} from "./routes/referrals.js";
 
 // Projects module routes
 import {
@@ -578,9 +588,29 @@ export function createServer() {
 
   // Employee Contracts API routes
   app.get("/api/contracts/contracts", getContracts);
+  app.get("/api/contracts/contracts/:id", getContractById);
   app.post("/api/contracts/contracts", createContract);
   app.put("/api/contracts/contracts/:id", updateContract);
   app.delete("/api/contracts/contracts/:id", deleteContract);
+  app.get("/api/contracts/analytics", getContractsAnalytics);
+  app.put("/api/contracts/contracts/:id/renew", renewContract);
+  app.put("/api/contracts/contracts/:id/terminate", terminateContract);
+
+  // Employee Referrals API routes
+  app.get("/api/referrals/referrals", getReferrals);
+  app.post("/api/referrals/referrals", createReferral);
+  app.put("/api/referrals/referrals/:id", updateReferral);
+  app.delete("/api/referrals/referrals/:id", deleteReferral);
+  app.get("/api/referrals/bonuses", getReferralBonuses);
+  app.post("/api/referrals/bonuses", createReferralBonus);
+  app.put("/api/referrals/bonuses/:id", updateReferralBonus);
+  app.get("/api/referrals/analytics", getReferralAnalytics);
+  app.get("/api/referrals/templates", getContractTemplates);
+  app.post("/api/referrals/templates", createContractTemplate);
+  app.put("/api/referrals/templates/:id", updateContractTemplate);
+  app.delete("/api/referrals/templates/:id", deleteContractTemplate);
+  app.get("/api/referrals/renewals", getContractRenewals);
+  app.post("/api/referrals/renewals", createContractRenewal);
 
   // Projects API routes
   app.get("/api/projects/projects", getProjects);

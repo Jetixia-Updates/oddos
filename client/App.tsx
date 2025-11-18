@@ -39,6 +39,7 @@ import Repairs from "./pages/modules/Repairs";
 import Barcode from "./pages/modules/Barcode";
 import Attendances from "./pages/modules/Attendances";
 import EmployeeContracts from "./pages/modules/EmployeeContracts";
+import EmployeeReferral from "./pages/modules/EmployeeReferral";
 import Appointments from "./pages/modules/Appointments";
 import Notes from "./pages/modules/Notes";
 import SkillsManagement from "./pages/modules/SkillsManagement";
@@ -89,6 +90,7 @@ const App = () => (
             <Route path="/barcode" element={<Barcode />} />
             <Route path="/attendances" element={<Attendances />} />
             <Route path="/contracts" element={<EmployeeContracts />} />
+            <Route path="/referrals" element={<EmployeeReferral />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/skills" element={<SkillsManagement />} />
