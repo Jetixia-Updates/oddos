@@ -3,29 +3,52 @@ import { MongoClient, Db } from 'mongodb';
 const MONGODB_URI = process.env.MONGODB_URI || '';
 
 if (!MONGODB_URI) {
-  throw new Error('Please define the MONGODB_URI environment variable inside .env');
+  console.warn('⚠️  MONGODB_URI not defined. Database features will be unavailable.');
 }
 
 let cachedClient: MongoClient | null = null;
 let cachedDb: Db | null = null;
+let connectionError: Error | null = null;
 
 export async function connectToDatabase() {
   if (cachedClient && cachedDb) {
     return { client: cachedClient, db: cachedDb };
   }
 
-  const client = await MongoClient.connect(MONGODB_URI);
-  const db = client.db('odoos_erp');
+  if (!MONGODB_URI) {
+    throw new Error('MONGODB_URI is not defined');
+  }
 
-  cachedClient = client;
-  cachedDb = db;
+  if (connectionError) {
+    throw connectionError;
+  }
 
-  console.log('✅ Connected to MongoDB');
+  try {
+    const client = await MongoClient.connect(MONGODB_URI, {
+      serverSelectionTimeoutMS: 5000,
+      connectTimeoutMS: 5000,
+    });
+    const db = client.db('odoos_erp');
 
-  return { client, db };
+    cachedClient = client;
+    cachedDb = db;
+
+    console.log('✅ Connected to MongoDB');
+
+    return { client, db };
+  } catch (error) {
+    connectionError = error as Error;
+    console.error('❌ MongoDB connection failed:', error);
+    throw error;
+  }
 }
 
 export async function getDatabase(): Promise<Db> {
-  const { db } = await connectToDatabase();
-  return db;
+  try {
+    const { db } = await connectToDatabase();
+    return db;
+  } catch (error) {
+    console.error('❌ Failed to get database:', error);
+    throw error;
+  }
 }

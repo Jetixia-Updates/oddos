@@ -129,6 +129,27 @@ export default function Sales() {
   const [analytics, setAnalytics] = useState<Analytics | null>(null);
   const [loading, setLoading] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
+  
+  // Dialog states
+  const [showCustomerDialog, setShowCustomerDialog] = useState(false);
+  const [showProductDialog, setShowProductDialog] = useState(false);
+  const [showQuotationDialog, setShowQuotationDialog] = useState(false);
+  const [showOrderDialog, setShowOrderDialog] = useState(false);
+  const [editingItem, setEditingItem] = useState<any>(null);
+  
+  // Form states
+  const [customerForm, setCustomerForm] = useState({
+    name: '', email: '', phone: '', company: '', type: 'lead', status: 'active'
+  });
+  const [productForm, setProductForm] = useState({
+    name: '', sku: '', price: 0, stock: 0, category: '', description: ''
+  });
+  const [quotationForm, setQuotationForm] = useState({
+    customer: '', items: [] as QuotationItem[], notes: '', validUntil: ''
+  });
+  const [orderForm, setOrderForm] = useState({
+    customer: '', items: [] as QuotationItem[], notes: '', deliveryDate: ''
+  });
 
   // Fetch data
   const fetchData = async () => {
@@ -157,6 +178,136 @@ export default function Sales() {
   useEffect(() => {
     fetchData();
   }, []);
+
+  // Customer CRUD
+  const handleSaveCustomer = async () => {
+    try {
+      const url = editingItem ? `/api/sales/customers/${editingItem._id}` : '/api/sales/customers';
+      const method = editingItem ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(customerForm),
+      });
+      
+      if (response.ok) {
+        fetchData();
+        setShowCustomerDialog(false);
+        resetCustomerForm();
+      }
+    } catch (error) {
+      console.error('Error saving customer:', error);
+    }
+  };
+
+  const handleDeleteCustomer = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this customer?')) return;
+    
+    try {
+      const response = await fetch(`/api/sales/customers/${id}`, { method: 'DELETE' });
+      if (response.ok) fetchData();
+    } catch (error) {
+      console.error('Error deleting customer:', error);
+    }
+  };
+
+  const resetCustomerForm = () => {
+    setCustomerForm({ name: '', email: '', phone: '', company: '', type: 'lead', status: 'active' });
+    setEditingItem(null);
+  };
+
+  // Product CRUD
+  const handleSaveProduct = async () => {
+    try {
+      const url = editingItem ? `/api/sales/products/${editingItem._id}` : '/api/sales/products';
+      const method = editingItem ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productForm),
+      });
+      
+      if (response.ok) {
+        fetchData();
+        setShowProductDialog(false);
+        resetProductForm();
+      }
+    } catch (error) {
+      console.error('Error saving product:', error);
+    }
+  };
+
+  const handleDeleteProduct = async (id: string) => {
+    if (!confirm('Are you sure you want to delete this product?')) return;
+    
+    try {
+      const response = await fetch(`/api/sales/products/${id}`, { method: 'DELETE' });
+      if (response.ok) fetchData();
+    } catch (error) {
+      console.error('Error deleting product:', error);
+    }
+  };
+
+  const resetProductForm = () => {
+    setProductForm({ name: '', sku: '', price: 0, stock: 0, category: '', description: '' });
+    setEditingItem(null);
+  };
+
+  // Quotation CRUD
+  const handleSaveQuotation = async () => {
+    try {
+      const url = editingItem ? `/api/sales/quotations/${editingItem._id}` : '/api/sales/quotations';
+      const method = editingItem ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(quotationForm),
+      });
+      
+      if (response.ok) {
+        fetchData();
+        setShowQuotationDialog(false);
+        resetQuotationForm();
+      }
+    } catch (error) {
+      console.error('Error saving quotation:', error);
+    }
+  };
+
+  const resetQuotationForm = () => {
+    setQuotationForm({ customer: '', items: [], notes: '', validUntil: '' });
+    setEditingItem(null);
+  };
+
+  // Order CRUD
+  const handleSaveOrder = async () => {
+    try {
+      const url = editingItem ? `/api/sales/orders/${editingItem._id}` : '/api/sales/orders';
+      const method = editingItem ? 'PUT' : 'POST';
+      
+      const response = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(orderForm),
+      });
+      
+      if (response.ok) {
+        fetchData();
+        setShowOrderDialog(false);
+        resetOrderForm();
+      }
+    } catch (error) {
+      console.error('Error saving order:', error);
+    }
+  };
+
+  const resetOrderForm = () => {
+    setOrderForm({ customer: '', items: [], notes: '', deliveryDate: '' });
+    setEditingItem(null);
+  };
 
   // Status badge colors
   const getStatusColor = (status: string) => {
@@ -407,7 +558,13 @@ export default function Sales() {
                     <CardTitle>Customers & Leads</CardTitle>
                     <CardDescription>Manage your customer database</CardDescription>
                   </div>
-                  <Button className="gradient-primary">
+                  <Button 
+                    className="gradient-primary"
+                    onClick={() => {
+                      resetCustomerForm();
+                      setShowCustomerDialog(true);
+                    }}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Customer
                   </Button>
@@ -467,10 +624,29 @@ export default function Sales() {
                             <Button size="sm" variant="ghost">
                               <Eye className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="ghost">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingItem(customer);
+                                setCustomerForm({
+                                  name: customer.name,
+                                  email: customer.email,
+                                  phone: customer.phone,
+                                  company: customer.company || '',
+                                  type: customer.type,
+                                  status: customer.status
+                                });
+                                setShowCustomerDialog(true);
+                              }}
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="ghost">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => handleDeleteCustomer(customer._id)}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -492,7 +668,13 @@ export default function Sales() {
                     <CardTitle>Product Catalog</CardTitle>
                     <CardDescription>Manage products and pricing</CardDescription>
                   </div>
-                  <Button className="gradient-primary">
+                  <Button 
+                    className="gradient-primary"
+                    onClick={() => {
+                      resetProductForm();
+                      setShowProductDialog(true);
+                    }}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     Add Product
                   </Button>
@@ -523,10 +705,29 @@ export default function Sales() {
                             </p>
                           </div>
                           <div className="flex gap-2">
-                            <Button size="sm" variant="ghost">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => {
+                                setEditingItem(product);
+                                setProductForm({
+                                  name: product.name,
+                                  sku: product.sku,
+                                  price: product.price,
+                                  stock: product.stock,
+                                  category: product.category,
+                                  description: ''
+                                });
+                                setShowProductDialog(true);
+                              }}
+                            >
                               <Edit className="w-4 h-4" />
                             </Button>
-                            <Button size="sm" variant="ghost">
+                            <Button 
+                              size="sm" 
+                              variant="ghost"
+                              onClick={() => handleDeleteProduct(product._id)}
+                            >
                               <Trash2 className="w-4 h-4" />
                             </Button>
                           </div>
@@ -548,7 +749,13 @@ export default function Sales() {
                     <CardTitle>Quotations</CardTitle>
                     <CardDescription>Manage sales quotations and proposals</CardDescription>
                   </div>
-                  <Button className="gradient-primary">
+                  <Button 
+                    className="gradient-primary"
+                    onClick={() => {
+                      resetQuotationForm();
+                      setShowQuotationDialog(true);
+                    }}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     New Quotation
                   </Button>
@@ -621,7 +828,13 @@ export default function Sales() {
                     <CardTitle>Sales Orders</CardTitle>
                     <CardDescription>Track and manage confirmed orders</CardDescription>
                   </div>
-                  <Button className="gradient-primary">
+                  <Button 
+                    className="gradient-primary"
+                    onClick={() => {
+                      resetOrderForm();
+                      setShowOrderDialog(true);
+                    }}
+                  >
                     <Plus className="w-4 h-4 mr-2" />
                     New Order
                   </Button>
@@ -687,6 +900,492 @@ export default function Sales() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Customer Dialog */}
+      <Dialog open={showCustomerDialog} onOpenChange={setShowCustomerDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingItem ? 'Edit Customer' : 'Add New Customer'}</DialogTitle>
+            <DialogDescription>
+              Fill in the customer information below
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="name">Name *</Label>
+                <Input
+                  id="name"
+                  value={customerForm.name}
+                  onChange={(e) => setCustomerForm({...customerForm, name: e.target.value})}
+                  placeholder="Customer name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="email">Email *</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={customerForm.email}
+                  onChange={(e) => setCustomerForm({...customerForm, email: e.target.value})}
+                  placeholder="customer@email.com"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="phone">Phone</Label>
+                <Input
+                  id="phone"
+                  value={customerForm.phone}
+                  onChange={(e) => setCustomerForm({...customerForm, phone: e.target.value})}
+                  placeholder="+966 5X XXX XXXX"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="company">Company</Label>
+                <Input
+                  id="company"
+                  value={customerForm.company}
+                  onChange={(e) => setCustomerForm({...customerForm, company: e.target.value})}
+                  placeholder="Company name"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="type">Type</Label>
+                <Select 
+                  value={customerForm.type} 
+                  onValueChange={(value) => setCustomerForm({...customerForm, type: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="lead">Lead</SelectItem>
+                    <SelectItem value="prospect">Prospect</SelectItem>
+                    <SelectItem value="customer">Customer</SelectItem>
+                    <SelectItem value="vip">VIP Customer</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="status">Status</Label>
+                <Select 
+                  value={customerForm.status} 
+                  onValueChange={(value) => setCustomerForm({...customerForm, status: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="active">Active</SelectItem>
+                    <SelectItem value="inactive">Inactive</SelectItem>
+                    <SelectItem value="blocked">Blocked</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCustomerDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveCustomer} className="gradient-primary">
+              {editingItem ? 'Update' : 'Create'} Customer
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Product Dialog */}
+      <Dialog open={showProductDialog} onOpenChange={setShowProductDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>{editingItem ? 'Edit Product' : 'Add New Product'}</DialogTitle>
+            <DialogDescription>
+              Fill in the product information below
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="productName">Product Name *</Label>
+                <Input
+                  id="productName"
+                  value={productForm.name}
+                  onChange={(e) => setProductForm({...productForm, name: e.target.value})}
+                  placeholder="Product name"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="sku">SKU *</Label>
+                <Input
+                  id="sku"
+                  value={productForm.sku}
+                  onChange={(e) => setProductForm({...productForm, sku: e.target.value})}
+                  placeholder="PROD-001"
+                />
+              </div>
+            </div>
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="price">Price (SAR) *</Label>
+                <Input
+                  id="price"
+                  type="number"
+                  value={productForm.price}
+                  onChange={(e) => setProductForm({...productForm, price: parseFloat(e.target.value)})}
+                  placeholder="0.00"
+                  step="0.01"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="stock">Stock *</Label>
+                <Input
+                  id="stock"
+                  type="number"
+                  value={productForm.stock}
+                  onChange={(e) => setProductForm({...productForm, stock: parseInt(e.target.value)})}
+                  placeholder="0"
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="category">Category</Label>
+                <Input
+                  id="category"
+                  value={productForm.category}
+                  onChange={(e) => setProductForm({...productForm, category: e.target.value})}
+                  placeholder="Electronics"
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="description">Description</Label>
+              <Textarea
+                id="description"
+                value={productForm.description}
+                onChange={(e) => setProductForm({...productForm, description: e.target.value})}
+                placeholder="Product description..."
+                rows={4}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowProductDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveProduct} className="gradient-primary">
+              {editingItem ? 'Update' : 'Create'} Product
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Quotation Dialog */}
+      <Dialog open={showQuotationDialog} onOpenChange={setShowQuotationDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingItem ? 'Edit Quotation' : 'Create New Quotation'}</DialogTitle>
+            <DialogDescription>
+              Create a quotation for your customer
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="quoteCustomer">Customer *</Label>
+                <Select 
+                  value={quotationForm.customer} 
+                  onValueChange={(value) => setQuotationForm({...quotationForm, customer: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select customer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers.map((customer) => (
+                      <SelectItem key={customer._id} value={customer._id}>
+                        {customer.name} - {customer.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="validUntil">Valid Until *</Label>
+                <Input
+                  id="validUntil"
+                  type="date"
+                  value={quotationForm.validUntil}
+                  onChange={(e) => setQuotationForm({...quotationForm, validUntil: e.target.value})}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Items</Label>
+              <div className="border rounded-lg p-4 space-y-2">
+                {quotationForm.items.map((item, index) => (
+                  <div key={index} className="flex gap-2 items-end">
+                    <div className="flex-1">
+                      <Select 
+                        value={item.product} 
+                        onValueChange={(value) => {
+                          const product = products.find(p => p._id === value);
+                          if (product) {
+                            const newItems = [...quotationForm.items];
+                            newItems[index] = {
+                              ...newItems[index],
+                              product: value,
+                              productName: product.name,
+                              unitPrice: product.price
+                            };
+                            setQuotationForm({...quotationForm, items: newItems});
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select product" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {products.map((product) => (
+                            <SelectItem key={product._id} value={product._id}>
+                              {product.name} - {formatCurrency(product.price)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Input
+                      type="number"
+                      placeholder="Qty"
+                      className="w-20"
+                      value={item.quantity}
+                      onChange={(e) => {
+                        const newItems = [...quotationForm.items];
+                        newItems[index].quantity = parseInt(e.target.value) || 0;
+                        newItems[index].subtotal = newItems[index].quantity * newItems[index].unitPrice;
+                        setQuotationForm({...quotationForm, items: newItems});
+                      }}
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Price"
+                      className="w-32"
+                      value={item.unitPrice}
+                      onChange={(e) => {
+                        const newItems = [...quotationForm.items];
+                        newItems[index].unitPrice = parseFloat(e.target.value) || 0;
+                        newItems[index].subtotal = newItems[index].quantity * newItems[index].unitPrice;
+                        setQuotationForm({...quotationForm, items: newItems});
+                      }}
+                    />
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => {
+                        const newItems = quotationForm.items.filter((_, i) => i !== index);
+                        setQuotationForm({...quotationForm, items: newItems});
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setQuotationForm({
+                      ...quotationForm,
+                      items: [...quotationForm.items, {
+                        product: '',
+                        quantity: 1,
+                        unitPrice: 0,
+                        discount: 0,
+                        tax: 15,
+                        subtotal: 0
+                      }]
+                    });
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Item
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="notes">Notes</Label>
+              <Textarea
+                id="notes"
+                value={quotationForm.notes}
+                onChange={(e) => setQuotationForm({...quotationForm, notes: e.target.value})}
+                placeholder="Additional notes..."
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowQuotationDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveQuotation} className="gradient-primary">
+              {editingItem ? 'Update' : 'Create'} Quotation
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Order Dialog */}
+      <Dialog open={showOrderDialog} onOpenChange={setShowOrderDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>{editingItem ? 'Edit Order' : 'Create New Order'}</DialogTitle>
+            <DialogDescription>
+              Create a sales order
+            </DialogDescription>
+          </DialogHeader>
+          <div className="grid gap-4 py-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="orderCustomer">Customer *</Label>
+                <Select 
+                  value={orderForm.customer} 
+                  onValueChange={(value) => setOrderForm({...orderForm, customer: value})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select customer" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {customers.map((customer) => (
+                      <SelectItem key={customer._id} value={customer._id}>
+                        {customer.name} - {customer.email}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="deliveryDate">Delivery Date</Label>
+                <Input
+                  id="deliveryDate"
+                  type="date"
+                  value={orderForm.deliveryDate}
+                  onChange={(e) => setOrderForm({...orderForm, deliveryDate: e.target.value})}
+                />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Items</Label>
+              <div className="border rounded-lg p-4 space-y-2">
+                {orderForm.items.map((item, index) => (
+                  <div key={index} className="flex gap-2 items-end">
+                    <div className="flex-1">
+                      <Select 
+                        value={item.product} 
+                        onValueChange={(value) => {
+                          const product = products.find(p => p._id === value);
+                          if (product) {
+                            const newItems = [...orderForm.items];
+                            newItems[index] = {
+                              ...newItems[index],
+                              product: value,
+                              productName: product.name,
+                              unitPrice: product.price
+                            };
+                            setOrderForm({...orderForm, items: newItems});
+                          }
+                        }}
+                      >
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select product" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {products.map((product) => (
+                            <SelectItem key={product._id} value={product._id}>
+                              {product.name} - {formatCurrency(product.price)}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Input
+                      type="number"
+                      placeholder="Qty"
+                      className="w-20"
+                      value={item.quantity}
+                      onChange={(e) => {
+                        const newItems = [...orderForm.items];
+                        newItems[index].quantity = parseInt(e.target.value) || 0;
+                        newItems[index].subtotal = newItems[index].quantity * newItems[index].unitPrice;
+                        setOrderForm({...orderForm, items: newItems});
+                      }}
+                    />
+                    <Input
+                      type="number"
+                      placeholder="Price"
+                      className="w-32"
+                      value={item.unitPrice}
+                      onChange={(e) => {
+                        const newItems = [...orderForm.items];
+                        newItems[index].unitPrice = parseFloat(e.target.value) || 0;
+                        newItems[index].subtotal = newItems[index].quantity * newItems[index].unitPrice;
+                        setOrderForm({...orderForm, items: newItems});
+                      }}
+                    />
+                    <Button 
+                      size="sm" 
+                      variant="ghost"
+                      onClick={() => {
+                        const newItems = orderForm.items.filter((_, i) => i !== index);
+                        setOrderForm({...orderForm, items: newItems});
+                      }}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))}
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setOrderForm({
+                      ...orderForm,
+                      items: [...orderForm.items, {
+                        product: '',
+                        quantity: 1,
+                        unitPrice: 0,
+                        discount: 0,
+                        tax: 15,
+                        subtotal: 0
+                      }]
+                    });
+                  }}
+                >
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add Item
+                </Button>
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="orderNotes">Notes</Label>
+              <Textarea
+                id="orderNotes"
+                value={orderForm.notes}
+                onChange={(e) => setOrderForm({...orderForm, notes: e.target.value})}
+                placeholder="Order notes..."
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowOrderDialog(false)}>
+              Cancel
+            </Button>
+            <Button onClick={handleSaveOrder} className="gradient-primary">
+              {editingItem ? 'Update' : 'Create'} Order
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

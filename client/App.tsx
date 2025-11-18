@@ -33,6 +33,16 @@ import RealEstate from "./pages/modules/RealEstate";
 import Restaurant from "./pages/modules/Restaurant";
 import Admin from "./pages/modules/Admin";
 import Hospital from "./pages/modules/Hospital";
+import Surveys from "./pages/modules/Surveys";
+import SMSMarketing from "./pages/modules/SMSMarketing";
+import Repairs from "./pages/modules/Repairs";
+import Barcode from "./pages/modules/Barcode";
+import Attendances from "./pages/modules/Attendances";
+import EmployeeContracts from "./pages/modules/EmployeeContracts";
+import Appointments from "./pages/modules/Appointments";
+import Notes from "./pages/modules/Notes";
+import SkillsManagement from "./pages/modules/SkillsManagement";
+import OnlineJobs from "./pages/modules/OnlineJobs";
 
 const queryClient = new QueryClient();
 
@@ -41,7 +51,12 @@ const App = () => (
     <TooltipProvider>
       <Toaster />
       <Sonner />
-      <BrowserRouter>
+      <BrowserRouter
+        future={{
+          v7_startTransition: true,
+          v7_relativeSplatPath: true,
+        }}
+      >
         <MainLayout>
           <Routes>
             <Route path="/" element={<Home />} />
@@ -52,6 +67,8 @@ const App = () => (
             <Route path="/crm" element={<CRM />} />
             <Route path="/sales" element={<Sales />} />
             <Route path="/ecommerce" element={<ECommerce />} />
+            <Route path="/surveys" element={<Surveys />} />
+            <Route path="/sms-marketing" element={<SMSMarketing />} />
 
             {/* Supply Chain Modules */}
             <Route path="/purchases" element={<Purchases />} />
@@ -68,6 +85,14 @@ const App = () => (
             <Route path="/restaurant" element={<Restaurant />} />
             <Route path="/pos" element={<POS />} />
             <Route path="/helpdesk" element={<Helpdesk />} />
+            <Route path="/repairs" element={<Repairs />} />
+            <Route path="/barcode" element={<Barcode />} />
+            <Route path="/attendances" element={<Attendances />} />
+            <Route path="/contracts" element={<EmployeeContracts />} />
+            <Route path="/appointments" element={<Appointments />} />
+            <Route path="/notes" element={<Notes />} />
+            <Route path="/skills" element={<SkillsManagement />} />
+            <Route path="/jobs" element={<OnlineJobs />} />
 
             {/* Vertical Solutions */}
             <Route path="/school" element={<School />} />
