@@ -142,6 +142,12 @@ const modules = [
         color: "text-fuchsia-500",
       },
       {
+        icon: Stethoscope,
+        label: "Hospital - ERP KSA",
+        path: "/hospital",
+        color: "text-blue-600",
+      },
+      {
         icon: Building2,
         label: "Real Estate",
         path: "/real-estate",

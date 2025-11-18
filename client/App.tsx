@@ -32,6 +32,7 @@ import Medical from "./pages/modules/Medical";
 import RealEstate from "./pages/modules/RealEstate";
 import Restaurant from "./pages/modules/Restaurant";
 import Admin from "./pages/modules/Admin";
+import Hospital from "./pages/modules/Hospital";
 
 const queryClient = new QueryClient();
 
@@ -71,6 +72,7 @@ const App = () => (
             {/* Vertical Solutions */}
             <Route path="/school" element={<School />} />
             <Route path="/medical" element={<Medical />} />
+            <Route path="/hospital" element={<Hospital />} />
             <Route path="/real-estate" element={<RealEstate />} />
 
             {/* Administration */}

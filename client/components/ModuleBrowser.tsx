@@ -11,6 +11,7 @@ export interface ModuleCard {
   category: string;
   color: string;
   installed?: boolean;
+  external?: boolean;
 }
 
 interface ModuleBrowserProps {
@@ -112,40 +113,58 @@ export default function ModuleBrowser({
 
             {/* Module Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {filteredModules.map((module, idx) => (
-                <Link
-                  key={idx}
-                  to={module.path}
-                  className="group bg-card border border-border/50 rounded-2xl p-6 shadow-lg hover:shadow-glow-lg transition-all duration-300 relative overflow-hidden"
-                >
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 gradient-primary"></div>
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 bg-white dark:bg-black"></div>
-                  
-                  <div className="relative z-10">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className={cn(
-                        "p-3 rounded-xl shadow-lg transition-all group-hover:shadow-glow",
-                        module.color
-                      )}>
-                        <module.icon className="w-8 h-8 text-white" />
+              {filteredModules.map((module, idx) => {
+                const CardContent = (
+                  <div className="group bg-card border border-border/50 rounded-2xl p-6 shadow-lg hover:shadow-glow-lg transition-all duration-300 relative overflow-hidden">
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 gradient-primary"></div>
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-300 bg-white dark:bg-black"></div>
+                    
+                    <div className="relative z-10">
+                      <div className="flex items-start gap-4 mb-4">
+                        <div className={cn(
+                          "p-3 rounded-xl shadow-lg transition-all group-hover:shadow-glow",
+                          module.color
+                        )}>
+                          <module.icon className="w-8 h-8 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <h3 className="text-xl font-bold text-foreground mb-1 group-hover:text-gradient transition-all">
+                            {module.title}
+                          </h3>
+                          {module.installed && (
+                            <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-success/20 text-success rounded-full">
+                              Installed
+                            </span>
+                          )}
+                        </div>
                       </div>
-                      <div className="flex-1">
-                        <h3 className="text-xl font-bold text-foreground mb-1 group-hover:text-gradient transition-all">
-                          {module.title}
-                        </h3>
-                        {module.installed && (
-                          <span className="inline-block px-2 py-0.5 text-xs font-semibold bg-success/20 text-success rounded-full">
-                            Installed
-                          </span>
-                        )}
-                      </div>
+                      <p className="text-sm text-muted-foreground leading-relaxed">
+                        {module.description}
+                      </p>
                     </div>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      {module.description}
-                    </p>
                   </div>
-                </Link>
-              ))}
+                );
+
+                return module.external ? (
+                  <a
+                    key={idx}
+                    href={module.path}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="block"
+                  >
+                    {CardContent}
+                  </a>
+                ) : (
+                  <Link
+                    key={idx}
+                    to={module.path}
+                    className="block"
+                  >
+                    {CardContent}
+                  </Link>
+                );
+              })}
             </div>
 
             {filteredModules.length === 0 && (
