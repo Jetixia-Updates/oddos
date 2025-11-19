@@ -25,8 +25,12 @@ export async function connectToDatabase() {
 
   try {
     const client = await MongoClient.connect(MONGODB_URI, {
-      serverSelectionTimeoutMS: 5000,
-      connectTimeoutMS: 5000,
+      serverSelectionTimeoutMS: 30000,
+      connectTimeoutMS: 30000,
+      socketTimeoutMS: 30000,
+      maxPoolSize: 10,
+      retryWrites: true,
+      retryReads: true,
     });
     const db = client.db('odoos_erp');
 

@@ -9,7 +9,8 @@ export const getProducts: RequestHandler = async (req, res) => {
     const products = await db.collection("pos_products").find().sort({ name: 1 }).toArray();
     res.json(products);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch products" });
+    console.error('Error fetching POS products:', error);
+    res.json([]);
   }
 };
 
@@ -53,7 +54,8 @@ export const getSales: RequestHandler = async (req, res) => {
     const sales = await db.collection("pos_sales").find().sort({ createdAt: -1 }).limit(100).toArray();
     res.json(sales);
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch sales" });
+    console.error('Error fetching POS sales:', error);
+    res.json([]);
   }
 };
 
@@ -91,12 +93,92 @@ export const getPOSAnalytics: RequestHandler = async (req, res) => {
       { $match: { createdAt: { $gte: today } } },
       { $group: { _id: null, total: { $sum: "$total" } } }
     ]).toArray();
+
+    // Top selling products
+    const topProducts = await db.collection("pos_sales").aggregate([
+      { $unwind: "$items" },
+      {
+        $group: {
+          _id: "$items.product.name",
+          sales: { $sum: "$items.quantity" },
+          revenue: { $sum: { $multiply: ["$items.product.price", "$items.quantity"] } }
+        }
+      },
+      { $sort: { revenue: -1 } },
+      { $limit: 5 },
+      {
+        $project: {
+          _id: 0,
+          name: "$_id",
+          sales: 1,
+          revenue: 1
+        }
+      }
+    ]).toArray();
     
     const totalRevenue = revenueResult[0]?.total || 0;
     const todayRevenue = todayRevenueResult[0]?.total || 0;
+    const todayTransactions = todaySales;
     
-    res.json({ totalSales, todaySales, totalRevenue, todayRevenue });
+    res.json({ 
+      totalSales, 
+      todaySales: todayRevenue, 
+      totalRevenue, 
+      todayTransactions,
+      topProducts
+    });
   } catch (error) {
-    res.status(500).json({ error: "Failed to fetch analytics" });
+    console.error('Error fetching POS analytics:', error);
+    res.json({ 
+      totalSales: 0, 
+      todaySales: 0, 
+      totalRevenue: 0,
+      todayTransactions: 0,
+      topProducts: []
+    });
+  }
+};
+
+// Customers
+export const getCustomers: RequestHandler = async (req, res) => {
+  try {
+    const db = await getDatabase();
+    const customers = await db.collection("pos_customers").find().sort({ name: 1 }).toArray();
+    res.json(customers);
+  } catch (error) {
+    console.error('Error fetching POS customers:', error);
+    res.json([]);
+  }
+};
+
+export const createCustomer: RequestHandler = async (req, res) => {
+  try {
+    const db = await getDatabase();
+    const customer = { 
+      ...req.body, 
+      totalPurchases: 0,
+      points: 0,
+      createdAt: new Date() 
+    };
+    const result = await db.collection("pos_customers").insertOne(customer);
+    res.json({ _id: result.insertedId, ...customer });
+  } catch (error) {
+    console.error('Error creating POS customer:', error);
+    res.status(500).json({ error: "Failed to create customer" });
+  }
+};
+
+export const updateCustomer: RequestHandler = async (req, res) => {
+  try {
+    const db = await getDatabase();
+    const { id } = req.params;
+    await db.collection("pos_customers").updateOne(
+      { _id: new ObjectId(id) }, 
+      { $set: { ...req.body, updatedAt: new Date() } }
+    );
+    res.json({ success: true });
+  } catch (error) {
+    console.error('Error updating POS customer:', error);
+    res.status(500).json({ error: "Failed to update customer" });
   }
 };

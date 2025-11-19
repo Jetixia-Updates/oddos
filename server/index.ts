@@ -177,6 +177,8 @@ import {
   getProducts as getPOSProducts, createProduct as createPOSProduct,
   updateProduct as updatePOSProduct, deleteProduct as deletePOSProduct,
   getSales, createSale,
+  getCustomers as getPOSCustomers, createCustomer as createPOSCustomer,
+  updateCustomer as updatePOSCustomer,
   getPOSAnalytics
 } from "./routes/pos.js";
 
@@ -208,6 +210,46 @@ import {
   getJobs, createJob, updateJob, deleteJob,
   getApplications, createApplication
 } from "./routes/onlineJobs.js";
+
+// Live Chat module routes
+import {
+  getConversations as getChatConversations, createConversation as createChatConversation, updateConversation as updateChatConversation,
+  getMessages as getChatMessages, sendMessage as sendChatMessage,
+  getOperators as getChatOperators, createOperator as createChatOperator, updateOperatorStatus as updateChatOperatorStatus,
+  getChatAnalytics,
+  getCannedResponses as getChatCannedResponses, createCannedResponse as createChatCannedResponse, updateCannedResponse as updateChatCannedResponse, deleteCannedResponse as deleteChatCannedResponse
+} from "./routes/livechat.js";
+
+// VoIP module routes
+import {
+  getCalls as getVoIPCalls, createCall as createVoIPCall, updateCall as updateVoIPCall, deleteCall as deleteVoIPCall,
+  getActiveCalls as getVoIPActiveCalls, transferCall as transferVoIPCall,
+  getPhoneNumbers as getVoIPPhoneNumbers, createPhoneNumber as createVoIPPhoneNumber, updatePhoneNumber as updateVoIPPhoneNumber, deletePhoneNumber as deleteVoIPPhoneNumber,
+  getRecordings as getVoIPRecordings, createRecording as createVoIPRecording, deleteRecording as deleteVoIPRecording,
+  getVoIPAnalytics,
+  getCallQueue as getVoIPCallQueue, addToQueue as addVoIPToQueue
+} from "./routes/voip.js";
+
+// Email Marketing module routes
+import {
+  getCampaigns as getEmailCampaigns, createCampaign as createEmailCampaign,
+  updateCampaign as updateEmailCampaign, deleteCampaign as deleteEmailCampaign, launchCampaign as launchEmailCampaign,
+  getLists as getEmailLists, createList as createEmailList, updateList as updateEmailList, deleteList as deleteEmailList,
+  getSubscribers as getEmailSubscribers, createSubscriber as createEmailSubscriber, updateSubscriber as updateEmailSubscriber, deleteSubscriber as deleteEmailSubscriber,
+  getTemplates as getEmailTemplates, createTemplate as createEmailTemplate,
+  updateTemplate as updateEmailTemplate, deleteTemplate as deleteEmailTemplate,
+  getEmailAnalytics, sendEmail
+} from "./routes/emailmarketing.js";
+
+// Website Builder module routes
+import {
+  getPages as getWebsitePages, createPage as createWebsitePage, updatePage as updateWebsitePage, deletePage as deleteWebsitePage, publishPage as publishWebsitePage,
+  getMenus as getWebsiteMenus, createMenu as createWebsiteMenu, updateMenu as updateWebsiteMenu, deleteMenu as deleteWebsiteMenu,
+  getBlocks as getWebsiteBlocks, createBlock as createWebsiteBlock, updateBlock as updateWebsiteBlock, deleteBlock as deleteWebsiteBlock,
+  getSettings as getWebsiteSettings, updateSettings as updateWebsiteSettings,
+  getWebsiteAnalytics,
+  getForms as getWebsiteForms, createForm as createWebsiteForm, getFormSubmissions as getWebsiteFormSubmissions
+} from "./routes/website.js";
 
 // Admin module routes
 import {
@@ -642,6 +684,9 @@ export function createServer() {
   app.delete("/api/pos/products/:id", deletePOSProduct);
   app.get("/api/pos/sales", getSales);
   app.post("/api/pos/sales", createSale);
+  app.get("/api/pos/customers", getPOSCustomers);
+  app.post("/api/pos/customers", createPOSCustomer);
+  app.put("/api/pos/customers/:id", updatePOSCustomer);
   app.get("/api/pos/analytics", getPOSAnalytics);
 
   // Helpdesk API routes
@@ -678,6 +723,81 @@ export function createServer() {
   app.delete("/api/jobs/jobs/:id", deleteJob);
   app.get("/api/jobs/applications", getApplications);
   app.post("/api/jobs/applications", createApplication);
+
+  // Live Chat API routes
+  app.get("/api/livechat/conversations", getChatConversations);
+  app.post("/api/livechat/conversations", createChatConversation);
+  app.put("/api/livechat/conversations/:id", updateChatConversation);
+  app.get("/api/livechat/messages", getChatMessages);
+  app.post("/api/livechat/messages", sendChatMessage);
+  app.get("/api/livechat/operators", getChatOperators);
+  app.post("/api/livechat/operators", createChatOperator);
+  app.put("/api/livechat/operators/:id", updateChatOperatorStatus);
+  app.get("/api/livechat/analytics", getChatAnalytics);
+  app.get("/api/livechat/canned-responses", getChatCannedResponses);
+  app.post("/api/livechat/canned-responses", createChatCannedResponse);
+  app.put("/api/livechat/canned-responses/:id", updateChatCannedResponse);
+  app.delete("/api/livechat/canned-responses/:id", deleteChatCannedResponse);
+
+  // VoIP API routes
+  app.get("/api/voip/calls", getVoIPCalls);
+  app.post("/api/voip/calls", createVoIPCall);
+  app.put("/api/voip/calls/:id", updateVoIPCall);
+  app.delete("/api/voip/calls/:id", deleteVoIPCall);
+  app.get("/api/voip/calls/active", getVoIPActiveCalls);
+  app.post("/api/voip/calls/:id/transfer", transferVoIPCall);
+  app.get("/api/voip/phone-numbers", getVoIPPhoneNumbers);
+  app.post("/api/voip/phone-numbers", createVoIPPhoneNumber);
+  app.put("/api/voip/phone-numbers/:id", updateVoIPPhoneNumber);
+  app.delete("/api/voip/phone-numbers/:id", deleteVoIPPhoneNumber);
+  app.get("/api/voip/recordings", getVoIPRecordings);
+  app.post("/api/voip/recordings", createVoIPRecording);
+  app.delete("/api/voip/recordings/:id", deleteVoIPRecording);
+  app.get("/api/voip/analytics", getVoIPAnalytics);
+  app.get("/api/voip/queue", getVoIPCallQueue);
+  app.post("/api/voip/queue", addVoIPToQueue);
+
+  // Email Marketing API routes
+  app.get("/api/email/campaigns", getEmailCampaigns);
+  app.post("/api/email/campaigns", createEmailCampaign);
+  app.put("/api/email/campaigns/:id", updateEmailCampaign);
+  app.delete("/api/email/campaigns/:id", deleteEmailCampaign);
+  app.post("/api/email/campaigns/:id/launch", launchEmailCampaign);
+  app.get("/api/email/lists", getEmailLists);
+  app.post("/api/email/lists", createEmailList);
+  app.put("/api/email/lists/:id", updateEmailList);
+  app.delete("/api/email/lists/:id", deleteEmailList);
+  app.get("/api/email/subscribers", getEmailSubscribers);
+  app.post("/api/email/subscribers", createEmailSubscriber);
+  app.put("/api/email/subscribers/:id", updateEmailSubscriber);
+  app.delete("/api/email/subscribers/:id", deleteEmailSubscriber);
+  app.get("/api/email/templates", getEmailTemplates);
+  app.post("/api/email/templates", createEmailTemplate);
+  app.put("/api/email/templates/:id", updateEmailTemplate);
+  app.delete("/api/email/templates/:id", deleteEmailTemplate);
+  app.get("/api/email/analytics", getEmailAnalytics);
+  app.post("/api/email/send", sendEmail);
+
+  // Website Builder API routes
+  app.get("/api/website/pages", getWebsitePages);
+  app.post("/api/website/pages", createWebsitePage);
+  app.put("/api/website/pages/:id", updateWebsitePage);
+  app.delete("/api/website/pages/:id", deleteWebsitePage);
+  app.post("/api/website/pages/:id/publish", publishWebsitePage);
+  app.get("/api/website/menus", getWebsiteMenus);
+  app.post("/api/website/menus", createWebsiteMenu);
+  app.put("/api/website/menus/:id", updateWebsiteMenu);
+  app.delete("/api/website/menus/:id", deleteWebsiteMenu);
+  app.get("/api/website/blocks", getWebsiteBlocks);
+  app.post("/api/website/blocks", createWebsiteBlock);
+  app.put("/api/website/blocks/:id", updateWebsiteBlock);
+  app.delete("/api/website/blocks/:id", deleteWebsiteBlock);
+  app.get("/api/website/settings", getWebsiteSettings);
+  app.put("/api/website/settings", updateWebsiteSettings);
+  app.get("/api/website/analytics", getWebsiteAnalytics);
+  app.get("/api/website/forms", getWebsiteForms);
+  app.post("/api/website/forms", createWebsiteForm);
+  app.get("/api/website/forms/:id/submissions", getWebsiteFormSubmissions);
 
   // Admin API routes
   app.get("/api/admin/users", getUsers);

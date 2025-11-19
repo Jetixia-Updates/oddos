@@ -27,17 +27,21 @@ export default function Purchases() {
   const fetchData = async () => {
     try {
       const [v, o, r, a] = await Promise.all([
-        fetch('/api/purchases/vendors').then(r => r.json()),
-        fetch('/api/purchases/orders').then(r => r.json()),
-        fetch('/api/purchases/rfqs').then(r => r.json()),
-        fetch('/api/purchases/analytics').then(r => r.json())
+        fetch('/api/purchases/vendors').then(r => r.json()).catch(() => []),
+        fetch('/api/purchases/orders').then(r => r.json()).catch(() => []),
+        fetch('/api/purchases/rfqs').then(r => r.json()).catch(() => []),
+        fetch('/api/purchases/analytics').then(r => r.json()).catch(() => null)
       ]);
-      setVendors(v);
-      setOrders(o);
-      setRFQs(r);
+      setVendors(Array.isArray(v) ? v : []);
+      setOrders(Array.isArray(o) ? o : []);
+      setRFQs(Array.isArray(r) ? r : []);
       setAnalytics(a);
     } catch (error) {
       console.error('Error:', error);
+      setVendors([]);
+      setOrders([]);
+      setRFQs([]);
+      setAnalytics(null);
     }
   };
 

@@ -108,21 +108,21 @@ interface WebsiteSettings {
   enableLiveMode: boolean;
   apiKey: string;
   webhookUrl: string;
-  socialMedia: {
+  socialMedia?: {
     facebook?: string;
     twitter?: string;
     instagram?: string;
     linkedin?: string;
   };
-  seo: {
-    metaTitle: string;
-    metaDescription: string;
-    keywords: string[];
+  seo?: {
+    metaTitle?: string;
+    metaDescription?: string;
+    keywords?: string[];
   };
-  shipping: {
-    freeShippingThreshold: number;
-    standardShippingCost: number;
-    expressShippingCost: number;
+  shipping?: {
+    freeShippingThreshold?: number;
+    standardShippingCost?: number;
+    expressShippingCost?: number;
   };
 }
 
@@ -205,9 +205,10 @@ export default function ECommerce() {
     try {
       const response = await fetch('/api/ecommerce/products');
       const data = await response.json();
-      setProducts(data);
+      setProducts(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error:', error);
+      setProducts([]);
     }
   };
 
@@ -215,9 +216,10 @@ export default function ECommerce() {
     try {
       const response = await fetch('/api/ecommerce/orders');
       const data = await response.json();
-      setOrders(data);
+      setOrders(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error:', error);
+      setOrders([]);
     }
   };
 
@@ -225,9 +227,10 @@ export default function ECommerce() {
     try {
       const response = await fetch('/api/ecommerce/customers');
       const data = await response.json();
-      setCustomers(data);
+      setCustomers(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error:', error);
+      setCustomers([]);
     }
   };
 
@@ -235,9 +238,10 @@ export default function ECommerce() {
     try {
       const response = await fetch('/api/ecommerce/reviews');
       const data = await response.json();
-      setReviews(data);
+      setReviews(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error:', error);
+      setReviews([]);
     }
   };
 
@@ -245,9 +249,10 @@ export default function ECommerce() {
     try {
       const response = await fetch('/api/ecommerce/coupons');
       const data = await response.json();
-      setCoupons(data);
+      setCoupons(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('Error:', error);
+      setCoupons([]);
     }
   };
 
@@ -266,7 +271,22 @@ export default function ECommerce() {
       const response = await fetch('/api/ecommerce/website-settings');
       if (response.ok) {
         const data = await response.json();
-        if (data) setWebsiteSettings(data);
+        if (data) {
+          setWebsiteSettings({
+            ...websiteSettings,
+            ...data,
+            seo: data.seo || {
+              metaTitle: '',
+              metaDescription: '',
+              keywords: []
+            },
+            shipping: data.shipping || {
+              freeShippingThreshold: 0,
+              standardShippingCost: 0,
+              expressShippingCost: 0
+            }
+          });
+        }
       }
     } catch (error) {
       console.error('Error:', error);
@@ -875,11 +895,11 @@ export default function ECommerce() {
                 <CardContent className="space-y-4">
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Meta Title</label>
-                    <Input value={websiteSettings.seo.metaTitle} onChange={(e) => setWebsiteSettings({...websiteSettings, seo: {...websiteSettings.seo, metaTitle: e.target.value}})} placeholder="Your Store - Best Products Online" />
+                    <Input value={websiteSettings.seo?.metaTitle || ''} onChange={(e) => setWebsiteSettings({...websiteSettings, seo: {...(websiteSettings.seo || {}), metaTitle: e.target.value}})} placeholder="Your Store - Best Products Online" />
                   </div>
                   <div className="space-y-2">
                     <label className="text-sm font-medium">Meta Description</label>
-                    <textarea className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2" value={websiteSettings.seo.metaDescription} onChange={(e) => setWebsiteSettings({...websiteSettings, seo: {...websiteSettings.seo, metaDescription: e.target.value}})} placeholder="Shop the best products at amazing prices..." />
+                    <textarea className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2" value={websiteSettings.seo?.metaDescription || ''} onChange={(e) => setWebsiteSettings({...websiteSettings, seo: {...(websiteSettings.seo || {}), metaDescription: e.target.value}})} placeholder="Shop the best products at amazing prices..." />
                   </div>
                 </CardContent>
               </Card>
@@ -893,15 +913,15 @@ export default function ECommerce() {
                   <div className="grid grid-cols-3 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Free Shipping Threshold</label>
-                      <Input type="number" value={websiteSettings.shipping.freeShippingThreshold} onChange={(e) => setWebsiteSettings({...websiteSettings, shipping: {...websiteSettings.shipping, freeShippingThreshold: parseFloat(e.target.value) || 0}})} placeholder="100.00" />
+                      <Input type="number" value={websiteSettings.shipping?.freeShippingThreshold || 0} onChange={(e) => setWebsiteSettings({...websiteSettings, shipping: {...(websiteSettings.shipping || {}), freeShippingThreshold: parseFloat(e.target.value) || 0}})} placeholder="100.00" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Standard Shipping</label>
-                      <Input type="number" value={websiteSettings.shipping.standardShippingCost} onChange={(e) => setWebsiteSettings({...websiteSettings, shipping: {...websiteSettings.shipping, standardShippingCost: parseFloat(e.target.value) || 0}})} placeholder="5.99" />
+                      <Input type="number" value={websiteSettings.shipping?.standardShippingCost || 0} onChange={(e) => setWebsiteSettings({...websiteSettings, shipping: {...(websiteSettings.shipping || {}), standardShippingCost: parseFloat(e.target.value) || 0}})} placeholder="5.99" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Express Shipping</label>
-                      <Input type="number" value={websiteSettings.shipping.expressShippingCost} onChange={(e) => setWebsiteSettings({...websiteSettings, shipping: {...websiteSettings.shipping, expressShippingCost: parseFloat(e.target.value) || 0}})} placeholder="15.99" />
+                      <Input type="number" value={websiteSettings.shipping?.expressShippingCost || 0} onChange={(e) => setWebsiteSettings({...websiteSettings, shipping: {...(websiteSettings.shipping || {}), expressShippingCost: parseFloat(e.target.value) || 0}})} placeholder="15.99" />
                     </div>
                   </div>
                 </CardContent>
@@ -916,19 +936,19 @@ export default function ECommerce() {
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Facebook</label>
-                      <Input value={websiteSettings.socialMedia.facebook || ''} onChange={(e) => setWebsiteSettings({...websiteSettings, socialMedia: {...websiteSettings.socialMedia, facebook: e.target.value}})} placeholder="https://facebook.com/yourstore" />
+                      <Input value={websiteSettings.socialMedia?.facebook || ''} onChange={(e) => setWebsiteSettings({...websiteSettings, socialMedia: {...(websiteSettings.socialMedia || {}), facebook: e.target.value}})} placeholder="https://facebook.com/yourstore" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Instagram</label>
-                      <Input value={websiteSettings.socialMedia.instagram || ''} onChange={(e) => setWebsiteSettings({...websiteSettings, socialMedia: {...websiteSettings.socialMedia, instagram: e.target.value}})} placeholder="https://instagram.com/yourstore" />
+                      <Input value={websiteSettings.socialMedia?.instagram || ''} onChange={(e) => setWebsiteSettings({...websiteSettings, socialMedia: {...(websiteSettings.socialMedia || {}), instagram: e.target.value}})} placeholder="https://instagram.com/yourstore" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">Twitter</label>
-                      <Input value={websiteSettings.socialMedia.twitter || ''} onChange={(e) => setWebsiteSettings({...websiteSettings, socialMedia: {...websiteSettings.socialMedia, twitter: e.target.value}})} placeholder="https://twitter.com/yourstore" />
+                      <Input value={websiteSettings.socialMedia?.twitter || ''} onChange={(e) => setWebsiteSettings({...websiteSettings, socialMedia: {...(websiteSettings.socialMedia || {}), twitter: e.target.value}})} placeholder="https://twitter.com/yourstore" />
                     </div>
                     <div className="space-y-2">
                       <label className="text-sm font-medium">LinkedIn</label>
-                      <Input value={websiteSettings.socialMedia.linkedin || ''} onChange={(e) => setWebsiteSettings({...websiteSettings, socialMedia: {...websiteSettings.socialMedia, linkedin: e.target.value}})} placeholder="https://linkedin.com/company/yourstore" />
+                      <Input value={websiteSettings.socialMedia?.linkedin || ''} onChange={(e) => setWebsiteSettings({...websiteSettings, socialMedia: {...(websiteSettings.socialMedia || {}), linkedin: e.target.value}})} placeholder="https://linkedin.com/company/yourstore" />
                     </div>
                   </div>
                 </CardContent>

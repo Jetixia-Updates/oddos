@@ -44,6 +44,10 @@ import Appointments from "./pages/modules/Appointments";
 import Notes from "./pages/modules/Notes";
 import SkillsManagement from "./pages/modules/SkillsManagement";
 import OnlineJobs from "./pages/modules/OnlineJobs";
+import LiveChat from "./pages/modules/LiveChat";
+import VoIP from "./pages/modules/VoIP";
+import EmailMarketing from "./pages/modules/EmailMarketing";
+import WebsiteBuilder from "./pages/modules/WebsiteBuilder";
 
 const queryClient = new QueryClient();
 
@@ -90,11 +94,18 @@ const App = () => (
             <Route path="/barcode" element={<Barcode />} />
             <Route path="/attendances" element={<Attendances />} />
             <Route path="/contracts" element={<EmployeeContracts />} />
+            <Route path="/employee-contracts" element={<EmployeeContracts />} />
             <Route path="/referrals" element={<EmployeeReferral />} />
+            <Route path="/employee-referral" element={<EmployeeReferral />} />
             <Route path="/appointments" element={<Appointments />} />
             <Route path="/notes" element={<Notes />} />
             <Route path="/skills" element={<SkillsManagement />} />
             <Route path="/jobs" element={<OnlineJobs />} />
+            <Route path="/livechat" element={<LiveChat />} />
+            <Route path="/voip" element={<VoIP />} />
+            <Route path="/email-marketing" element={<EmailMarketing />} />
+            <Route path="/website-builder" element={<WebsiteBuilder />} />
+            <Route path="/website" element={<WebsiteBuilder />} />
 
             {/* Vertical Solutions */}
             <Route path="/school" element={<School />} />
